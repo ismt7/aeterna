@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local flow yaml
+src/data/**/*.yaml
+src/data/**/*.yml
+!src/data/default-flow.yaml

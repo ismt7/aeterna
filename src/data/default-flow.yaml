@@ -1,0 +1,142 @@
+id: default-guide
+title: Aeterna YAML ガイド
+
+sections:
+  parts:
+    docs-link:
+      type: link
+      label: YAML 仕様メモ
+      url: https://example.com/aeterna-yaml-guide
+      copyable: false
+    shared-checklist:
+      - type: text
+        label: 共有パーツ
+        text: sections.parts にまとめた内容は、各 task の parts から ref で再利用できます。
+      - type: link
+        label: サンプルリポジトリ
+        url: https://example.com/aeterna-examples
+    next-steps:
+      - type: text
+        label: 次の一歩
+        text: このファイルを複製して、自分の作業フローに合わせて task を置き換えるのが最短です。
+      - type: text
+        text: title と description だけでも始められ、必要になったら parts や ref を足せます。
+      - type: link
+        label: テンプレート集
+        url: https://example.com/aeterna-templates
+    release-check-template:
+      - type: text
+        label: 共通の補足
+        text: 複数の task で同じ案内を見せたい場合は、sections.parts に定義して ref で参照します。
+      - type: link
+        label: 運用手順書
+        url: https://example.com/release-checklist
+
+tasks:
+  - id: overview
+    title: このデフォルトフローの見方
+    description: URL 指定なしで開いたときに最初に表示される、YAML 記法の実行可能サンプルです。
+    estimate_minutes: 5
+    parts:
+      - type: text
+        label: このファイルで分かること
+        text: description、estimate_minutes、subtasks、depends_on、text、link、sections.parts、ref、copyable の使い方を一通り確認できます。
+      - type: text
+        text: まずは右側の詳細カードを見ながら、各タスクを順番に選択してください。
+      - ref: docs-link
+
+  - id: basic-fields
+    title: 基本フィールドを確認する
+    description: estimate_minutes と subtasks を持つタスクの例です。
+    estimate_minutes: 10
+    subtasks:
+      - title: 想定工数の表示を確認する
+      - title: サブタスクの完了状態を切り替える
+    parts:
+      - type: text
+        label: 確認ポイント
+        text: description は本文として表示され、parts の text はラベル付きまたはラベルなしで追加できます。
+    depends_on:
+      - overview
+
+  - id: shared-parts
+    title: 共有パーツと ref を確認する
+    description: sections.parts で定義した単体パーツと複数パーツを参照する例です。
+    estimate_minutes: 10
+    parts:
+      - ref: shared-checklist
+      - ref: docs-link
+    depends_on:
+      - basic-fields
+
+  - id: add-parts-to-existing-task
+    title: 既存タスクにパーツを追加する
+    description: すでに動いているフローでも、task に parts を足すだけで補足情報を段階的に増やせます。
+    estimate_minutes: 10
+    parts:
+      - type: text
+        label: まずは最小追加
+        text: |
+          既存の task に説明を足したいだけなら、parts に text を 1 件追加するだけで十分です。
+
+          tasks:
+            - id: execute
+              title: 実行する
+              parts:
+                - type: text
+                  label: 補足メモ
+                  text: 実行前に環境変数を確認する
+      - type: text
+        label: 共通化したくなったら
+        text: |
+          同じ案内を複数 task で使い回したくなったら、sections.parts に寄せて ref に置き換えます。
+
+          sections:
+            parts:
+              release-check:
+                - type: text
+                  label: リリース前チェック
+                  text: ステージングで動作確認してから本番反映する
+
+          tasks:
+            - id: execute
+              title: 実行する
+              parts:
+                - ref: release-check
+      - ref: release-check-template
+    depends_on:
+      - shared-parts
+
+  - id: copy-controls
+    title: コピー挙動を確認する
+    description: 各パーツは既定でコピー可能ですが、copyable を false にすると無効化できます。
+    subtasks:
+      - title: コピーアイコンが hover 時に表示されることを確認する
+      - title: コピー成功後にチェックアイコンへ変わることを確認する
+    parts:
+      - type: text
+        label: コピー可能な本文
+        text: この文章はデフォルト設定のままなのでコピーできます。
+      - type: text
+        label: コピー不可の本文
+        text: この文章は copyable を false にしているため、コピーアイコンが表示されません。
+        copyable: false
+      - type: link
+        label: コピー可能な URL
+        url: https://example.com/copy-enabled
+    depends_on:
+      - overview
+
+  - id: customize
+    title: 自分用フローへ置き換える
+    description: 記法を確認したら、このファイルを複製して自分の用途に合わせて編集します。
+    estimate_minutes: 15
+    subtasks:
+      - title: 不要な task を削除する
+      - title: 自分の task と depends_on に置き換える
+      - title: 共通情報を sections.parts に寄せる
+    parts:
+      - ref: next-steps
+    depends_on:
+      - add-parts-to-existing-task
+      - copy-controls
