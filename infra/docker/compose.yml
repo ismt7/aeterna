@@ -1,7 +1,10 @@
+name: aeterna
+
 services:
   app:
     build:
-      context: .
+      context: ../..
+      dockerfile: infra/docker/Dockerfile
       target: development
     environment:
       NODE_ENV: development
@@ -9,7 +12,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .:/app
+      - ../..:/app
       - node_modules:/app/node_modules
       - next_cache:/app/.next
 
@@ -17,7 +20,8 @@ services:
     profiles:
       - prod
     build:
-      context: .
+      context: ../..
+      dockerfile: infra/docker/Dockerfile
       target: runner
     environment:
       NODE_ENV: production
@@ -27,7 +31,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./src/data:/app/src/data:ro
+      - ../../src/data:/app/src/data:ro
 
 volumes:
   node_modules:
