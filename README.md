@@ -20,6 +20,29 @@ npm run dev
 
 ブラウザで [http://localhost:3000](http://localhost:3000) を開きます。
 
+## Docker で起動する
+
+開発用コンテナを起動します。`src/data` を含むローカルファイルはコンテナへマウントされるため、YAML やソースの編集内容をそのまま反映できます。
+
+```bash
+docker compose up --build
+```
+
+本番相当の構成で起動する場合は `prod` プロファイルを使います。`src/data` は読み取り専用でマウントされます。
+
+```bash
+docker compose --profile prod up --build app-prod
+```
+
+どちらもブラウザでは [http://localhost:3000](http://localhost:3000) を開きます。
+
+依存関係を更新したあとに開発コンテナの `node_modules` ボリュームを作り直したい場合は、次を実行します。
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
 ## 使い方
 
 1. `src/data/*.yaml` を編集または追加します。
