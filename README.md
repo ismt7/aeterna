@@ -22,27 +22,114 @@ npm run dev
 
 ## Docker で起動する
 
-Docker 関連の設定ファイルは `infra/docker` 配下にまとめています。
+イメージは [GitHub Container Registry (GHCR)](https://ghcr.io/ismt7/aeterna) に公開されています。リポジトリのクローンなしで、すぐに起動できます。
 
-開発用コンテナを起動します。`src/data` を含むローカルファイルはコンテナへマウントされるため、YAML やソースの編集内容をそのまま反映できます。
+### docker run で起動する（最速）
+
+```bash
+docker run --rm -p 3000:3000 \
+  -v "/path/to/your/flows:/app/src/data:ro" \
+  ghcr.io/ismt7/aeterna:latest
+```
+
+`/path/to/your/flows` は自分の YAML ファイルが入ったディレクトリの絶対パスに書き換えます。  
+ブラウザで [http://localhost:3000](http://localhost:3000) を開きます。
+
+```bash
+# 例: カレントディレクトリの yaml/ フォルダを使う
+docker run --rm -p 3000:3000 \
+  -v "$(pwd)/yaml:/app/src/data:ro" \
+  ghcr.io/ismt7/aeterna:latest
+
+# 例: ホームディレクトリの my-flows/ を使う
+docker run --rm -p 3000:3000 \
+  -v "$HOME/my-flows:/app/src/data:ro" \
+  ghcr.io/ismt7/aeterna:latest
+```
+
+### docker compose で起動する（推奨）
+
+自前の compose ファイルを用意すると、毎回オプションを書かずに済みます。任意のディレクトリに `compose.yml` を作成します。
+
+```yaml
+# compose.yml
+services:
+  aeterna:
+    image: ghcr.io/ismt7/aeterna:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - /path/to/your/flows:/app/src/data:ro
+```
+
+起動します。
+
+```bash
+docker compose up
+```
+
+ポート番号を変えたい場合は `ports` の左辺を書き換えます（例: `"8080:3000"`）。  
+最新イメージに更新したいときは `docker compose pull && docker compose up` を実行します。
+
+### YAML ファイルを差し替える
+
+`-v` でマウントするディレクトリを変えるだけで、表示するフローを切り替えられます。
+
+```bash
+# プロジェクト A のフローを使う
+docker run --rm -p 3000:3000 \
+  -v "$HOME/projects/project-a/flows:/app/src/data:ro" \
+  ghcr.io/ismt7/aeterna:latest
+
+# プロジェクト B のフローを使う
+docker run --rm -p 3000:3000 \
+  -v "$HOME/projects/project-b/flows:/app/src/data:ro" \
+  ghcr.io/ismt7/aeterna:latest
+```
+
+マウントするディレクトリには `.yaml` ファイルを置くだけで自動的に読み込まれます。サブディレクトリも対応しています。
+
+複数の YAML が存在する場合、URL の `file` パラメータで表示するフローを指定できます。
+
+```text
+http://localhost:3000/?file=my-flow.yaml
+http://localhost:3000/?file=subdir/project.yaml
+```
+
+### イメージのタグ
+
+| タグ | 内容 |
+|------|------|
+| `latest` | `main` ブランチの最新ビルド |
+| `main` | 同上 |
+| `sha-xxxxxxx` | コミット SHA ごとのビルド |
+
+### ソースからビルドする（開発者向け）
+
+リポジトリをクローンしてローカルでビルドする場合は以下を参照します。
+
+**開発用コンテナ（ホットリロード付き）:**
 
 ```bash
 docker compose -f infra/docker/compose.yml up --build
 ```
 
-本番相当の構成で起動する場合は `prod` プロファイルを使います。`src/data` は読み取り専用でマウントされます。
+`src/data` を含むローカルファイルがコンテナへマウントされるため、YAML やソースの編集内容をそのまま反映できます。
 
-```bash
-docker compose -f infra/docker/compose.yml --profile prod up --build app-prod
-```
-
-どちらもブラウザでは [http://localhost:3000](http://localhost:3000) を開きます。
-
-依存関係を更新したあとに開発コンテナの `node_modules` ボリュームを作り直したい場合は、次を実行します。
+`node_modules` ボリュームを作り直したい場合:
 
 ```bash
 docker compose -f infra/docker/compose.yml down -v
 docker compose -f infra/docker/compose.yml up --build
+```
+
+**本番イメージをローカルビルド:**
+
+```bash
+docker build -f infra/docker/Dockerfile --target runner -t aeterna:local .
+docker run --rm -p 3000:3000 \
+  -v "$(pwd)/src/data:/app/src/data:ro" \
+  aeterna:local
 ```
 
 ## 使い方
