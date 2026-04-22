@@ -19,6 +19,7 @@ import {
   type TaskDefinition,
   type TaskRuntimeState,
   type TaskRuntimeEntry,
+  type TaskStatus,
   type FlowSections,
   type PositionedTask,
 } from "../task-flow";
@@ -518,7 +519,7 @@ describe("createInitialRuntimeState", () => {
     const flow = makeFlow([{}]);
     const savedState: TaskRuntimeState = {
       "task-1": {
-        status: "invalid" as any,
+        status: "invalid" as unknown as TaskStatus,
         subtasks: [],
         actualElapsedMs: 0,
         timerState: "idle",
