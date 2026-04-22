@@ -1,4 +1,4 @@
-FROM node:24-alpine AS base
+FROM node:25-alpine AS base
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -24,7 +24,7 @@ COPY . .
 
 RUN npm run build
 
-FROM node:24-alpine AS runner
+FROM node:25-alpine AS runner
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
